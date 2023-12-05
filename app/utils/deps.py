@@ -26,3 +26,13 @@ async def identify_request(token: str = Depends(oauth_scheme)):
         except ExpiredSignatureError:
             raise HTTPException(403, "Expired signature")
     raise HTTPException(403, "No token?")
+
+
+async def parse_token(token: str = Depends(oauth_scheme)):
+    if token:
+        try:
+            decoded_token = token_manager.get_content(token)
+            return decoded_token
+        except ExpiredSignatureError:
+            raise HTTPException(403, "Expired signature")
+    raise HTTPException(403, "No token?")

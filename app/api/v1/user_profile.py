@@ -10,14 +10,14 @@ from app.schemas.user_profile import (
 
 from app.controllers import user_profile as user_profile_controller
 
-from app.utils.deps import identify_request
+from app.utils.deps import parse_token
 
 api = APIRouter()
 
 
 @api.get('/', response_model=UserProfileInDB)
 async def get_by_id(
-    identity: dict = Depends(identify_request),
+    identity: dict = Depends(parse_token),
 ):
     if user_profile := await user_profile_controller.get(
         identity['sub'],
@@ -29,7 +29,7 @@ async def get_by_id(
 
 @api.post('/', response_model=UserProfileInDB)
 async def create_profile(
-    identity: dict = Depends(identify_request),
+    identity: dict = Depends(parse_token),
 ):
     if user_profile := await user_profile_controller.save(
         identity['sub'],
@@ -42,7 +42,7 @@ async def create_profile(
 @api.delete('/', response_model=UserProfileInDB)
 async def delete_profile(
     user_profile_id: Optional[int] = None,
-    identity: dict = Depends(identify_request),
+    identity: dict = Depends(parse_token),
 ):
     """
     if no user_profile_id specified, all user profiles will be
