@@ -156,7 +156,8 @@ create table playing_group (
 
 	title text,
 	description text,
-	created_at timestamptz not null default now()
+	created_at timestamptz not null default now(),
+	unique(title)
 );
 
 select

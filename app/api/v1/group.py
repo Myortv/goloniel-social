@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException
@@ -17,7 +17,11 @@ from app.controllers import group as group_controller
 
 from app.permissions import group as permissions
 
-from app.utils.deps import identify_request, Profile
+from app.utils.deps import (
+    identify_request,
+    Profile,
+    identify_user,
+)
 
 api = APIRouter()
 
@@ -28,6 +32,32 @@ async def get_by_id(
 ):
     if group := await group_controller.get_by_id(group_id):
         return group
+    else:
+        raise HTTPException(404)
+
+
+@api.get('/by-master-raw/raw/by-title', response_model=List[ViewGroup])
+async def get_by_master_title(
+    group_title: str,
+    master_profile: Profile = Depends(identify_user),
+):
+    if group := await group_controller.get_by_master_title(
+        master_profile.master_id,
+        group_title,
+    ):
+        return group
+    else:
+        raise HTTPException(404)
+
+
+@api.get('/by-master/raw/', response_model=List[GroupInDB])
+async def get_by_master(
+    master_profile: Profile = Depends(identify_user),
+):
+    if groups := await group_controller.get_by_master(
+        master_profile.master_id
+    ):
+        return groups
     else:
         raise HTTPException(404)
 
@@ -44,20 +74,22 @@ async def get_by_user(
         raise HTTPException(404)
 
 
-@api.get('/by-user/private', response_model=List[GroupInDB])
-async def get_by_user_private(
-    real_user_id: int,
-    identity: Profile = Depends(identify_request),
-):
-    if identity.is_admin:
-        if group := await group_controller.get_by_user_verbouse(
-            real_user_id
-        ):
-            return group
-        else:
-            raise HTTPException(404)
-    else:
-        raise HTTPException(403)
+
+
+# @api.get('/by-user/private', response_model=List[GroupInDB])
+# async def get_by_user_private(
+#     real_user_id: int,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     if identity.is_admin:
+#         if group := await group_controller.get_by_user_verbouse(
+#             real_user_id
+#         ):
+#             return group
+#         else:
+#             raise HTTPException(404)
+#     else:
+#         raise HTTPException(403)
 
 
 @api.post('/', response_model=GroupInDB)

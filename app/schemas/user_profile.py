@@ -29,7 +29,7 @@ class ViewProfile(BaseModel):
 
 class Profile(ViewProfile):
     # exp: datetime
-    role: str
+    role: Optional[str] = None
 
     @property
     def is_admin(self) -> bool:

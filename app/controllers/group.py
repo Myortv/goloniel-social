@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from asyncpg import Connection
 
@@ -20,6 +20,48 @@ from app.schemas.group import (
     # MasterCreate,
     # MasterUpdate,
 )
+
+
+@DM.acqure_connection()
+async def get_by_master_title(
+    master_id: int,
+    group_title: str,
+    conn: Connection = None,
+) -> GroupInDB:
+    title_str = ""
+    # title_str = "and regexp_like(title, $2, 'i')"
+    title_str = "and title like $2"
+    group_title = f"%{group_title}%"
+    result = await conn.fetch(
+        'select '
+            'view_group.* '
+        'from view_group '
+        'where master_id = $1 '
+        f'{title_str} '
+        'order by created_at ',
+        master_id,
+        group_title,
+    )
+    if not result:
+        return result
+    return [GroupInDB(**row) for row in result]
+
+
+@DM.acqure_connection()
+async def get_by_master(
+    master_id: int,
+    conn: Connection = None,
+) -> GroupInDB:
+    result = await conn.fetch(
+        *select_q(
+            'view_group',
+            ['created_at'],
+            master_id=master_id,
+        )
+    )
+    if not result:
+        return result
+    return [GroupInDB(**row) for row in result]
 
 
 @DM.acqure_connection()

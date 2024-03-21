@@ -36,3 +36,10 @@ async def parse_token(token: str = Depends(oauth_scheme)):
         except ExpiredSignatureError:
             raise HTTPException(403, "Expired signature")
     raise HTTPException(403, "No token?")
+
+
+async def identify_user(real_user_id: int):
+    return Profile(
+        **(await _get_full_profile(real_user_id)),
+        role=None,
+    )
