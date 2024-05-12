@@ -6,28 +6,28 @@ from pydantic import BaseModel
 
 
 class LnkGroupUserInDB(BaseModel):
-    user_profile_id: int
-    group_id: int
+    user_id: int
+    squad_id: int
     created_at: datetime
 
 
 class LnkGroupUserCreate(BaseModel):
-    user_profile_id: int
-    group_id: int
+    user_id: int
+    squad_id: int
 
 
 class GroupMembershipRequestInDB(BaseModel):
     id: int
-    user_profile_id: int
-    group_id: int
+    user_id: int
+    squad_id: int
     state: Optional[str] = None
     is_accepted: bool
     created_at: datetime
 
 
 class GroupMembershipRequestCreate(BaseModel):
-    user_profile_id: int
-    group_id: int
+    user_id: int
+    squad_id: int
 
 
 class GroupMembershipRequestUpdate(BaseModel):
@@ -36,9 +36,9 @@ class GroupMembershipRequestUpdate(BaseModel):
 
 
 # class GroupMembershipRequestCreate(BaseModel):
-#     group_id: int
+#     squad_id: int
 
 # class lnkGroupUserInDB(BaseModel):
 #     user_id: int
-#     group_id: int
+#     squad_id: int
 #     created_at: datetime

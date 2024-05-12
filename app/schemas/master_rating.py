@@ -4,6 +4,7 @@ from fastapiplugins.exceptions import HandlableException
 
 
 class RatingCreate(BaseModel):
+    user_id: int
     master_id: int
     rating: int
 
@@ -19,7 +20,7 @@ class RatingCreate(BaseModel):
 
 
 class RatingInDB(BaseModel):
-    user_profile_id: int
+    user_id: int
     master_id: int
     rating: int
 

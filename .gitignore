@@ -36,6 +36,7 @@ app/utils/checks.py
 *.bak
 private_key.pem
 public_key.pem
+api_key.key
 env.sh
 ./logs
 logs/*

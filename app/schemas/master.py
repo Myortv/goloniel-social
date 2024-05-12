@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class MasterInDB(BaseModel):
     id: int
-    user_profile_id: int
+    user_id: int
     is_approved: Optional[bool] = False
 
     title: str
@@ -15,7 +15,6 @@ class MasterInDB(BaseModel):
 
 
 class ViewMaster(MasterInDB):
-    user_real_id: int
     rating: Optional[float] = 0
     approvals_amount: Optional[int] = 0
 
@@ -27,7 +26,7 @@ class MasterUpdateProtected(BaseModel):
 
 
 class MasterUpdate(BaseModel):
-    user_profile_id: int
+    user_id: int
     is_approved: Optional[bool] = False
 
     title: Optional[str] = None
@@ -36,7 +35,7 @@ class MasterUpdate(BaseModel):
 
 
 class MasterCreate(BaseModel):
-    user_profile_id: int
+    user_id: int
     is_approved: Optional[bool] = False
 
     title: str
@@ -50,8 +49,4 @@ class MasterCreateProtected(BaseModel):
 
 class MasterCreateWithMaster(BaseModel):
     title: str
-    user_profile_id: int
-
-
-# class MasterCreateWithUser(MasterCreate):
-#     user_profile_id: int
+    user_id: int

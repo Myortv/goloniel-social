@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 class MessageInDB(BaseModel):
     id: int
-    group_id: int
+    squad_id: int
     owner_id: int
     created_at: datetime
 

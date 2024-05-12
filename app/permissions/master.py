@@ -31,7 +31,7 @@ async def update(
     if identity['role'] == settings.ADMIN_ROLE_STRING:
         return True
     master = await master_controllers.get_by_id(master_id)
-    if identity['sub'] == master.user_real_id:
+    if identity['sub'] == master.user_id:
         return True
 
 

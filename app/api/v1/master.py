@@ -27,32 +27,73 @@ api = APIRouter()
 
 @api.get('/', response_model=ViewMaster)
 async def get_by_id(
-    master_id: int
+    master_id: Optional[int] = None,
 ):
-    if master := await master_controller.get_by_id(master_id):
+    if master := await master_controller.get_by_id(
+        master_id,
+    ):
         return master
     else:
         raise HTTPException(404)
 
 
-@api.get('/me', response_model=ViewMaster)
-async def get_me(
-    identity: Profile = Depends(identify_request),
+@api.get('/by-user-id', response_model=ViewMaster)
+async def get_by_user_id(
+    user_id: Optional[int] = None,
 ):
-    if identity.master_id:
-        return await master_controller.get_by_id(identity.master_id)
-    raise HTTPException(404)
+    if master := await master_controller.get_by_user_id(
+        user_id,
+    ):
+        return master
+    else:
+        raise HTTPException(404)
+
+
+# @api.get('/all', response_model=List[ViewMaster])
+# async def get_all(
+#     search_by: Optional[str] = None,
+# ):
+#     if masters := await master_controller.get_all(
+#         search_by,
+#     ):
+#         return masters
+#     else:
+#         raise HTTPException(404)
+
+
+# @api.get('/me', response_model=ViewMaster)
+# async def get_me(
+#     identity: Profile = Depends(identify_request),
+# ):
+#     if identity.master_id:
+#         return await master_controller.get_by_id(identity.master_id)
+#     raise HTTPException(404)
 
 
 @api.get('/page', response_model=List[ViewMaster])
 async def get_page(
     limit: Optional[int] = 10,
     offset: Optional[int] = 0,
+    search_by: Optional[str] = None,
 ):
     if master := await master_controller.get_page(
-        limit, offset
+        limit,
+        offset,
+        search_by,
     ):
         return master
+    else:
+        raise HTTPException(404)
+
+
+@api.post('/private/complete-user-id', response_model=List[int])
+async def get_user_id_for_bot_completion(
+    identity: Profile = Depends(identify_request),
+):
+    if not identity.is_admin:
+        raise HTTPException(403)
+    if user_ids := await master_controller.get_user_id_for_bot_completion():
+        return user_ids
     else:
         raise HTTPException(404)
 
@@ -69,21 +110,21 @@ async def get_page(
 #         raise HTTPException(404)
 
 
-@api.post('/me', response_model=MasterInDB)
-async def create_master(
-    master_data: MasterCreateProtected,
-    identity: Profile = Depends(identify_request),
-):
-    master_data = MasterCreateWithMaster(
-        **master_data.model_dump(),
-        user_profile_id=identity.user_profile_id
-    )
-    if master := await master_controller.save(
-        master_data,
-    ):
-        return master
-    else:
-        raise HTTPException(404)
+# @api.post('/me', response_model=MasterInDB)
+# async def create_master(
+#     master_data: MasterCreateProtected,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     master_data = MasterCreateWithMaster(
+#         **master_data.model_dump(),
+#         user_id=identity.user_id
+#     )
+#     if master := await master_controller.save(
+#         master_data,
+#     ):
+#         return master
+#     else:
+#         raise HTTPException(404)
 
 
 @api.post('/private', response_model=MasterInDB)
@@ -100,18 +141,18 @@ async def create_master_private(
         raise HTTPException(403)
 
 
-@api.put('/me', response_model=MasterInDB)
-async def update_master(
-    master_data: MasterUpdateProtected,
-    identity: Profile = Depends(identify_request),
-):
-    if master := await master_controller.update(
-        identity.master_id,
-        master_data,
-    ):
-        return master
-    else:
-        raise HTTPException(404)
+# @api.put('/me', response_model=MasterInDB)
+# async def update_master(
+#     master_data: MasterUpdateProtected,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     if master := await master_controller.update(
+#         identity.master_id,
+#         master_data,
+#     ):
+#         return master
+#     else:
+#         raise HTTPException(404)
 
 
 @api.put('/private', response_model=MasterInDB)
@@ -132,15 +173,15 @@ async def update_master_private(
         raise HTTPException(403)
 
 
-@api.delete('/me', response_model=MasterInDB)
-async def delete_master(
-    identity: Profile = Depends(identify_request),
-):
-    if master := await master_controller.delete(identity.master_id):
-        # await master_messages.emit_deleted(master)
-        return master
-    else:
-        raise HTTPException(404)
+# @api.delete('/me', response_model=MasterInDB)
+# async def delete_master(
+#     identity: Profile = Depends(identify_request),
+# ):
+#     if master := await master_controller.delete(identity.master_id):
+#         # await master_messages.emit_deleted(master)
+#         return master
+#     else:
+#         raise HTTPException(404)
 
 
 @api.delete('/private', response_model=MasterInDB)

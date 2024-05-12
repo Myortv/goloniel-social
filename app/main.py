@@ -51,8 +51,12 @@ from app.api.v1 import (
     master_rating,
     master_approval,
     group,
-    group_membership,
+    # group_membership,
     group_message,
+)
+from app.api.v1.private import (
+    group_membership as private_group_membersip,
+    group_join_request as private_group_join_request,
 )
 
 app.include_router(
@@ -82,10 +86,20 @@ app.include_router(
     prefix=settings.API_V1_STR + '/group',
     tags=["Group"]
 )
+# app.include_router(
+#     group_membership.api,
+#     prefix=settings.API_V1_STR + '/group-membership',
+#     tags=["Group Membership"]
+# )
 app.include_router(
-    group_membership.api,
-    prefix=settings.API_V1_STR + '/group-membership',
-    tags=["Group Membership"]
+    private_group_join_request.api,
+    prefix=settings.API_V1_STR + '/private/group-join-request',
+    tags=["Private group join request"]
+)
+app.include_router(
+    private_group_membersip.api,
+    prefix=settings.API_V1_STR + '/private/group-membership',
+    tags=["Private group membership"]
 )
 # app.include_router(
 #     integrations.api,

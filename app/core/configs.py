@@ -29,14 +29,13 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_HOST: Optional[str] = 'localhost'
 
-    ADMIN_ROLE_STRING: Optional[str] = 'admin'
+    ADMIN_ROLES: Optional[List[str]] = ['admin', 'internal service']
     # SUSPENDED_ROLE_STRING: Optional[str] = 'suspended'
 
     refresh_token_url: str = 'http://test.goloniel.org/auth/api/v1/token/refresh'
     # email_url: str = 'http://?/v1/user/closed/get-by-email'
     # save_url: str = 'http://?/v1/user/closed'
     # change_pass: str = 'http://?/v1/user/closed/password-change'
-
 
     PUBLIC_JWT_KEY: Optional[str] = None
     JWT_ALGORITHM: str = 'RS256'

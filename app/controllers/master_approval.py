@@ -13,7 +13,9 @@ from fastapiplugins.controllers import (
 
 from app.schemas.master_approval import (
     ApprovalInDB,
+    ApprovalCreate,
     ApprovalRequestInDB,
+    ApprovalRequestCreate,
     # ApprovalRequestUpdateByOwner,
     ApprovalRequestUpdateByAdmin,
 )
@@ -37,16 +39,33 @@ async def get_approvals_by_master(
 
 
 @DM.acqure_connection()
+async def get_approve_requests_by_master(
+    master_id: int,
+    conn: Connection = None,
+) -> List[ApprovalInDB]:
+    result = await conn.fetch(
+        *select_q(
+            'master_approve_request',
+            ['created_at desc'],
+            master_id=master_id,
+        )
+    )
+    if not result:
+        return result
+    return [ApprovalRequestInDB(**row) for row in result]
+
+
+@DM.acqure_connection()
 async def get(
     master_id: int,
-    user_profile_id: int,
+    user_id: int,
     conn: Connection = None,
 ) -> ApprovalInDB:
     result = await conn.fetchrow(
         *select_q(
             'master_approvals',
             master_id=master_id,
-            user_profile_id=user_profile_id
+            user_id=user_id
         )
     )
     if not result:
@@ -56,18 +75,17 @@ async def get(
 
 @DM.acqure_connection()
 async def set_approval(
-    master_id: int,
-    user_profile_id: int,
+    approval: ApprovalCreate,
     conn: Connection = None,
 ) -> ApprovalInDB:
     result = await conn.fetchrow(
         # 'with master_profile as ( '
         #     'select id '
         #     'from master '
-        #     'where user_profile_id = $1 '
+        #     'where user_id = $1 '
         # '), insert_values as ( '
         #     'select '
-        #         'id::int as user_profile_id, '
+        #         'id::int as user_id, '
         #         '$1::int as master_id '
         #     'from '
         #         'user_profile  '
@@ -78,13 +96,13 @@ async def set_approval(
         # ') '
         # 'insert into '
         #     'master_approvals '
-        #         '(user_profile_id, master_id) '
+        #         '(user_id, master_id) '
         # '(select * from insert_values) '
         # 'returning * ',
         # master_id,
         # user_real_id,
         *insert_q(
-            {"master_id": master_id, "user_profile_id": user_profile_id},
+            approval,
             'master_approvals',
         )
     )
@@ -96,7 +114,7 @@ async def set_approval(
 @DM.acqure_connection()
 async def delete(
     master_id: int,
-    user_profile_id: int,
+    user_id: int,
     conn: Connection = None,
 ) -> ApprovalInDB:
     result = await conn.fetchrow(
@@ -111,7 +129,7 @@ async def delete(
         # 'delete from '
         #     'master_approvals '
         # 'where '
-        #     'user_profile_id = (select id from profile) '
+        #     'user_id = (select id from profile) '
         #     'and master_id = $2 '
         # 'returning * ',
         # user_real_id,
@@ -119,7 +137,7 @@ async def delete(
         *delete_q(
             'master_approvals',
             master_id=master_id,
-            user_profile_id=user_profile_id,
+            user_id=user_id,
         )
     )
     if not result:
@@ -142,7 +160,7 @@ async def get_request(
         #     'left join '
         #         'master '
         #     'on '
-        #         'master.user_profile_id = user_profile.id '
+        #         'master.user_id = user_profile.id '
         #     'where '
         #         'user_profile.real_id = $1 '
         # ') '
@@ -166,7 +184,8 @@ async def get_request(
 @DM.acqure_connection()
 async def create_request(
     # user_real_id: int,
-    master_id: int,
+    # master_id: int,
+    approval_request: ApprovalRequestCreate,
     conn: Connection = None,
 ) -> ApprovalRequestInDB:
     result = await conn.fetchrow(
@@ -178,7 +197,7 @@ async def create_request(
         #     'left join '
         #         'master '
         #     'on '
-        #         'master.user_profile_id = user_profile.id '
+        #         'master.user_id = user_profile.id '
         #     'where '
         #         'user_profile.real_id = $1 '
         # ') '
@@ -188,7 +207,7 @@ async def create_request(
         # 'returning * ',
         # user_real_id,
         *insert_q(
-            {"master_id": master_id},
+            approval_request,
             'master_approve_request',
         )
     )
@@ -212,7 +231,7 @@ async def delete_request(
         #     'left join '
         #         'master '
         #     'on '
-        #         'master.user_profile_id = user_profile.id '
+        #         'master.user_id = user_profile.id '
         #     'where '
         #         'user_profile.real_id = $1 '
         # ') '

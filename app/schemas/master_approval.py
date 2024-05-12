@@ -6,9 +6,14 @@ from pydantic import BaseModel
 
 
 class ApprovalInDB(BaseModel):
-    user_profile_id: int
+    user_id: int
     master_id: int
     created_at: datetime
+
+
+class ApprovalCreate(BaseModel):
+    user_id: int
+    master_id: int
 
 
 class ApprovalRequestInDB(BaseModel):
@@ -16,6 +21,10 @@ class ApprovalRequestInDB(BaseModel):
     state: Optional[str]
     reason: Optional[str]
     created_at: datetime
+
+
+class ApprovalRequestCreate(BaseModel):
+    master_id: int
 
 
 class ApprovalRequestUpdateByAdmin(BaseModel):

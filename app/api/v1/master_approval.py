@@ -12,7 +12,9 @@ from app.utils.deps import identify_request, Profile
 
 from app.schemas.master_approval import (
     ApprovalInDB,
+    ApprovalCreate,
     ApprovalRequestInDB,
+    ApprovalRequestCreate,
     # ApprovalRequestUpdateByOwner,
     ApprovalRequestUpdateByAdmin,
 )
@@ -28,149 +30,177 @@ api = APIRouter()
 """
 
 
-@api.get('/me', response_model=List[ApprovalInDB])
-async def get_my_approvals(
-    identity: Profile = Depends(identify_request),
-):
-    """
-        returns approvals of me as a master
-    """
-    if identity.master_id:
-        if approval := await approval_controller.get_approvals_by_master(
-            identity.master_id
-        ):
-            return approval
-    raise HTTPException(404)
+# @api.get('/me', response_model=List[ApprovalInDB])
+# async def get_my_approvals(
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         returns approvals of me as a master
+#     """
+#     if identity.master_id:
+#         if approval := await approval_controller.get_approvals_by_master(
+#             identity.master_id
+#         ):
+#             return approval
+#     raise HTTPException(404)
 
 
-@api.get('/', response_model=ApprovalInDB)
-async def get_my_approve(
-    master_id: int,
-    identity: Profile = Depends(identify_request),
-):
-    """
-        returns approval i give to master
-    """
-    if approval := await approval_controller.get(
-        master_id,
-        identity.user_profile_id,
-    ):
-        return approval
-    else:
-        raise HTTPException(404)
+# @api.get('/', response_model=ApprovalInDB)
+# async def get_my_approve(
+#     master_id: int,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         returns approval i give to master
+#     """
+#     if approval := await approval_controller.get(
+#         master_id,
+#         identity.user_id,
+#     ):
+#         return approval
+#     else:
+#         raise HTTPException(404)
 
 
 @api.get('/private', response_model=ApprovalInDB)
 async def get_approve(
     master_id: int,
-    user_profile_id: int,
+    user_id: int,
     identity: Profile = Depends(identify_request),
 ):
     if identity.is_admin:
         if approval := await approval_controller.get(
             master_id,
-            identity.user_profile_id,
+            user_id,
         ):
             return approval
     raise HTTPException(404)
 
 
-@api.get('/by-master/private', response_model=List[ApprovalInDB])
-async def get_approvals_by_master(
-    master_id: int,
+@api.post('/private', response_model=ApprovalInDB)
+async def create_approval(
+    approval: ApprovalCreate,
     identity: Profile = Depends(identify_request),
 ):
     if identity.is_admin:
-        if approval := await approval_controller.get_approvals_by_master(
-            master_id,
+        if approval := await approval_controller.set_approval(
+            approval
         ):
             return approval
     raise HTTPException(404)
 
 
-@api.post('/', response_model=ApprovalInDB)
-async def set_my_approve(
-    master_id: int,
-    identity: Profile = Depends(identify_request),
-):
-    """
-        create approval for some master
-    """
-    if master_id == identity.master_id:
-        raise HandlableException(
-            "SOCIAL-novoteformyself",
-            422,
-            short="You can't set any vote for yourself!"
-        )
-    if approval := await approval_controller.set_approval(
-        master_id,
-        identity.user_profile_id,
-    ):
-        return approval
-    else:
-        raise HTTPException(404)
+# @api.get('/private', response_model=ApprovalInDB)
+# async def get_approve(
+#     master_id: int,
+#     user_id: int,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     if identity.is_admin:
+#         if approval := await approval_controller.get(
+#             master_id,
+#             identity.user_id,
+#         ):
+#             return approval
+#     raise HTTPException(404)
 
 
-@api.delete('/', response_model=ApprovalInDB)
-async def delete_my_approve(
-    master_id: int,
-    identity: Profile = Depends(identify_request),
-):
-    """
-        delete approval from some master
-    """
-    if approval := await approval_controller.delete(
-        master_id,
-        identity.user_profile_id,
-    ):
-        return approval
-    else:
-        raise HTTPException(404)
+# @api.get('/by-master/private', response_model=List[ApprovalInDB])
+# async def get_approvals_by_master(
+#     master_id: int,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     if identity.is_admin:
+#         if approval := await approval_controller.get_approvals_by_master(
+#             master_id,
+#         ):
+#             return approval
+#     raise HTTPException(404)
 
 
-@api.get('/request/me', response_model=ApprovalRequestInDB)
-async def get_approval_request(
-    identity: Profile = Depends(identify_request),
-):
-    """
-        get my approval request
-    """
-    if approval := await approval_controller.get_request(
-        identity.master_id,
-    ):
-        return approval
-    else:
-        raise HTTPException(404)
+# @api.post('/', response_model=ApprovalInDB)
+# async def set_my_approve(
+#     master_id: int,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         create approval for some master
+#     """
+#     if master_id == identity.master_id:
+#         raise HandlableException(
+#             "SOCIAL-novoteformyself",
+#             422,
+#             short="You can't set any vote for yourself!"
+#         )
+#     if approval := await approval_controller.set_approval(
+#         master_id,
+#         identity.user_id,
+#     ):
+#         return approval
+#     else:
+#         raise HTTPException(404)
 
 
-@api.post('/request/me', response_model=ApprovalRequestInDB)
-async def create_approval_request(
-    identity: Profile = Depends(identify_request),
-):
-    """
-        create approval request. approval request created for me as a master
-    """
-    if approval := await approval_controller.create_request(
-        identity.master_id,
-    ):
-        return approval
-    else:
-        raise HTTPException(404)
+# @api.delete('/', response_model=ApprovalInDB)
+# async def delete_my_approve(
+#     master_id: int,
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         delete approval from some master
+#     """
+#     if approval := await approval_controller.delete(
+#         master_id,
+#         identity.user_id,
+#     ):
+#         return approval
+#     else:
+#         raise HTTPException(404)
 
 
-@api.delete('/request/me', response_model=ApprovalRequestInDB)
-async def delete_approval_request(
-    identity: Profile = Depends(identify_request),
-):
-    """
-        delete my approval request.
-    """
-    if approval := await approval_controller.delete_request(
-        identity.master_id,
-    ):
-        return approval
-    else:
-        raise HTTPException(404)
+# @api.get('/request/me', response_model=ApprovalRequestInDB)
+# async def get_approval_request(
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         get my approval request
+#     """
+#     if approval := await approval_controller.get_request(
+#         identity.master_id,
+#     ):
+#         return approval
+#     else:
+#         raise HTTPException(404)
+
+
+# @api.post('/request/me', response_model=ApprovalRequestInDB)
+# async def create_approval_request(
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         create approval request. approval request created for me as a master
+#     """
+#     if approval := await approval_controller.create_request(
+#         identity.master_id,
+#     ):
+#         return approval
+#     else:
+#         raise HTTPException(404)
+
+
+# @api.delete('/request/me', response_model=ApprovalRequestInDB)
+# async def delete_approval_request(
+#     identity: Profile = Depends(identify_request),
+# ):
+#     """
+#         delete my approval request.
+#     """
+#     if approval := await approval_controller.delete_request(
+#         identity.master_id,
+#     ):
+#         return approval
+#     else:
+#         raise HTTPException(404)
 
 
 # @api.put('/request/me', response_model=ApprovalRequestInDB)
@@ -206,6 +236,42 @@ async def delete_approval_request(
 #             raise HTTPException(404)
 #     else:
 #         raise HTTPException(403)
+
+@api.get('/request/private/by-master', response_model=List[ApprovalRequestInDB])
+async def get_approval_requests_by_master(
+    master_id: int,
+    identity: Profile = Depends(identify_request),
+):
+    # if await master_permissions.is_admin(identity):
+    if identity.is_admin:
+        if approval := await approval_controller.get_approve_requests_by_master(
+            master_id,
+        ):
+            return approval
+        else:
+            raise HTTPException(404)
+    else:
+        raise HTTPException(403)
+
+
+@api.post('/request/private', response_model=ApprovalRequestInDB)
+async def create_approval_request_private(
+    approval_request: ApprovalRequestCreate,
+    identity: Profile = Depends(identify_request),
+):
+    """
+        create approval request. approval request created for me as a master
+    """
+    if identity.is_admin:
+        if approval := await approval_controller.create_request(
+            approval_request,
+        ):
+            return approval
+        else:
+            raise HTTPException(404)
+    else:
+        raise HTTPException(403)
+
 
 
 @api.put('/request/private', response_model=ApprovalRequestInDB)

@@ -14,17 +14,15 @@ from app.core.configs import settings
 
 class UserProfileInDB(BaseModel):
     id: int
-    real_id: int
 
 
 class UserProfileCreate(BaseModel):
-    reai_id: int
+    id: int
 
 
 class ViewProfile(BaseModel):
-    user_profile_id: int
-    real_id: int
-    master_id: Optional[int] = None
+    user_id: int
+    # master_id: Optional[int] = None
 
 
 class Profile(ViewProfile):
@@ -33,4 +31,4 @@ class Profile(ViewProfile):
 
     @property
     def is_admin(self) -> bool:
-        return self.role == settings.ADMIN_ROLE_STRING
+        return self.role in settings.ADMIN_ROLES

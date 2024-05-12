@@ -9,16 +9,17 @@ from app.schemas.group_message import MessageInDB
 
 class GroupInDB(BaseModel):
     id: int
-    master_id: int
+    master_id: Optional[int] = None
 
     title: str
-    description: str
+    is_full: bool
+    description: Optional[str] = None
     created_at: datetime
 
 
-class ViewGroup(GroupInDB):
-    user_profiles_id: Optional[List[int]] = None
-    messages: Optional[List[MessageInDB]] = None
+# class ViewGroup(GroupInDB):
+#     user_profiles_id: Optional[List[int]] = None
+#     messages: Optional[List[MessageInDB]] = None
 
 
 class GroupCreate(BaseModel):
@@ -34,7 +35,8 @@ class GroupCreateWithMaster(BaseModel):
 
 class GroupUpdate(BaseModel):
     title: str
-    description: str
+    description: Optional[str] = None
+    is_full: bool
 
 
 class GroupUpdateProtected(BaseModel):
@@ -42,3 +44,4 @@ class GroupUpdateProtected(BaseModel):
 
     title: str
     description: str
+    is_full: bool
